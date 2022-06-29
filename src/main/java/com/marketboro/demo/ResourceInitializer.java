@@ -48,7 +48,7 @@ public class ResourceInitializer {
 
         ArrayList<Order> orders = new ArrayList<>();
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 10; i++) {
             List<OrderItem> orderItems = items.stream()
                     .map(item -> new OrderItem(item.getId(), item.getPrice(), item.getName(), 1))
                     .collect(Collectors.toList());

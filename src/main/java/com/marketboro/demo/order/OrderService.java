@@ -66,7 +66,6 @@ public class OrderService {
 
     }
 
-    @Transactional
     private void removeItem(Order order, String itemId) {
         order.removeItem(itemId);
     }

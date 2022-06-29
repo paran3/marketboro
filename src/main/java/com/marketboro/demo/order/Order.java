@@ -65,7 +65,15 @@ public class Order {
     }
 
     public void removeItem(String itemId) {
-        items.removeIf(orderItem -> orderItem.getItemId().equals(itemId));
+//        items.removeIf(orderItem -> orderItem.getItemId().equals(itemId));
+
+        OrderItem item = items.stream()
+                .filter(orderItem -> orderItem.getItemId().equals(itemId))
+                .collect(Collectors.toList()).get(0);
+
+        item.setOrder(null);
+        this.items.remove(item);
+
     }
 
     public Order markDeliveryFinished() {
