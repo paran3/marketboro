@@ -1,4 +1,4 @@
-package com.marketboro.demo.item.web.v1;
+package com.marketboro.demo.item.api.v1;
 
 import com.marketboro.demo.item.Item;
 import com.marketboro.demo.item.ItemService;
@@ -36,7 +36,7 @@ public class ItemController {
     @ResponseBody
     public ResponseEntity getItem(@PathVariable String id) {
         Optional<Item> item = itemService.getItem(id);
-        if (!item.isPresent()) {
+        if (item.isPresent() == false) {
             return ResponseEntity.notFound().build();
         }
 
@@ -46,10 +46,6 @@ public class ItemController {
     @RequestMapping(path = "items", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity createItem(@RequestBody ItemRequestBody requestBody) {
-        if (requestBody.postValidation() == false) {
-            return ResponseEntity.badRequest().build();
-        }
-
         String id = itemService.createItem(requestBody.to());
 
         return ResponseEntity.created(URI.create(id)).build();
@@ -58,19 +54,28 @@ public class ItemController {
     @RequestMapping(path = "items/{id}", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity putItem(@PathVariable String id, @RequestBody ItemRequestBody requestBody) {
-        if (requestBody.putValidation() == false) {
-            return ResponseEntity.badRequest().build();
-        }
-
         Optional<Item> item = itemService.getItem(id);
 
         if (item.isPresent()) {
-            itemService.putItem(requestBody.to(id));
+            itemService.putItem(requestBody.toWithId(id));
             return ResponseEntity.ok().build();
         } else {
             String itemId = itemService.createItem(requestBody.to());
-            return ResponseEntity.created(URI.create(id)).build();
+            return ResponseEntity.created(URI.create(itemId)).build();
         }
     }
 
+    @RequestMapping(path = "items/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity deleteItem(@PathVariable String id) {
+        Optional<Item> item = itemService.getItem(id);
+
+        if (item.isPresent() == false) {
+            return ResponseEntity.notFound().build();
+        }
+
+        itemService.removeItem(id);
+
+        return ResponseEntity.ok().build();
+    }
 }

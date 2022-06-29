@@ -1,7 +1,9 @@
 package com.marketboro.demo.item;
 
-import com.marketboro.demo.item.web.v1.ItemResponseBody;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
@@ -48,4 +50,7 @@ public class Item {
         this(id, price, name, ZonedDateTime.now(), ZonedDateTime.now());
     }
 
+    public Item(Long price, String name) {
+        this(null, price, name, ZonedDateTime.now(), ZonedDateTime.now());
+    }
 }
