@@ -1,17 +1,14 @@
 package com.marketboro.demo.order;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Entity(name = "user_order")
@@ -53,19 +50,52 @@ public class Order {
         this.addItems(items);
     }
 
-    public void addItems(List<OrderItem> items) {
+    public Order set(Order order) {
+        this.userId = order.getUserId();
+        this.status = order.getStatus();
+        this.removeAllItems();
+        this.addItems(order.getItems());
+        this.setModifiedAtToCurrentTime();
+        return this;
+    }
+
+    public Order addItems(List<OrderItem> items) {
         for (OrderItem item : items) {
             this.addItem(item);
         }
+        return this;
     }
 
-    public void addItem(OrderItem item) {
+    public Order addItem(OrderItem item) {
         this.items.add(item);
         item.setOrder(this);
+        this.setModifiedAtToCurrentTime();
+        return this;
+
+//        if (items.contains(item)) {
+//            OrderItem temp = items.stream()
+//                    .filter(tempItem -> tempItem.getItemId().equals(item.getItemId()))
+//                    .findFirst()
+//                    .get();
+//
+//            temp.setQuantity(item.getQuantity() + temp.getQuantity());
+//        } else {
+//            this.items.add(item);
+//            item.setOrder(this);
+//        }
     }
 
-    public void removeItem(String itemId) {
+    public Order removeAllItems() {
+        for (String itemId : items.stream().map(OrderItem::getItemId).collect(Collectors.toList())) {
+            removeItem(itemId);
+        }
+        return this;
+    }
+
+    public Order removeItem(String itemId) {
         items.removeIf(orderItem -> orderItem.getItemId().equals(itemId));
+        this.setModifiedAtToCurrentTime();
+        return this;
     }
 
     public Order markDeliveryFinished() {
@@ -76,7 +106,7 @@ public class Order {
         }
 
         this.status = Status.DELIVERY_FINISHED;
-
+        this.setModifiedAtToCurrentTime();
         return this;
     }
 
@@ -88,16 +118,37 @@ public class Order {
         }
 
         this.status = Status.ORDER_CANCELED;
+        this.setModifiedAtToCurrentTime();
+        return this;
+    }
 
+    public Order setModifiedAtToCurrentTime() {
+        this.modifiedAt = ZonedDateTime.now();
         return this;
     }
 
     public static enum Status {
 
-        ORDER_RECEIPTED,
+        ORDER_RECEIPTED {
+            @Override
+            public String toString() {
+                return "ORDER_RECEIPTED";
+            }
+        },
 
-        DELIVERY_FINISHED,
+        DELIVERY_FINISHED {
+            @Override
+            public String toString() {
+                return "DELIVERY_FINISHED";
+            }
+        },
 
-        ORDER_CANCELED;
+        ORDER_CANCELED {
+            @Override
+            public String toString() {
+                return "ORDER_CANCELED";
+            }
+        },
+        ;
     }
 }

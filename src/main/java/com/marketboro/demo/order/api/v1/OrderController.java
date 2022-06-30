@@ -58,7 +58,12 @@ public class OrderController {
     @ResponseBody
     public ResponseEntity putOrder(@PathVariable String orderId, @RequestBody OrderRequestBody requestBody) {
         if (orderService.isOrderExists(orderId)) {
-            orderService.putOrder(requestBody.toWithId(orderId));
+            try {
+                orderService.putOrder(requestBody.toWithId(orderId));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.ok().build();
         } else {
             orderId = orderService.createOrder(requestBody.toWithId(orderId));
@@ -73,7 +78,12 @@ public class OrderController {
             return ResponseEntity.notFound().build();
         }
 
-        orderService.removeOrder(orderId);
+        try {
+            orderService.removeOrder(orderId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
 
